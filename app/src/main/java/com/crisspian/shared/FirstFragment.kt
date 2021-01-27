@@ -5,11 +5,11 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import androidx.navigation.fragment.findNavController
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.crisspian.shared.databinding.FragmentFirstBinding
 import com.crisspian.shared.model.Task
-import com.crisspian.shared.model.TaskDataBase
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -17,6 +17,7 @@ import com.crisspian.shared.model.TaskDataBase
 class FirstFragment : Fragment() {
 
     private lateinit var binding: FragmentFirstBinding
+    private val viewModel : TaskViewModel by activityViewModels()
 
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
@@ -30,10 +31,35 @@ class FirstFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val dao = TaskDataBase.getDataBase(requireContext()).getTaskDao()
+        //Instanciación del adapter para ser usado por recycler View
+        val adapter = TaskAdapter()
+        binding.rvTask.adapter = adapter
 
-        dao.createTask(Task(1, "sdsds", "sddsd", "sdsdsd", 2, false))
+        binding.rvTask.layoutManager =LinearLayoutManager(context)
 
+        val task= Task(
+                1,
+                "primera tarea",
+                "prueba",
+                "27-01-2021",
+                1,
+                false  )
+
+        val task2= Task(
+                2,
+                "segunda tarea",
+                "prueba",
+                "27-01-2021",
+                1,
+                true  )
+
+        viewModel.insertTask(task)
+        viewModel.insertTask(task2)
+
+        // Esto esta observando al objeto expuesto en el viewModel
+            viewModel.allTask.observe(viewLifecycleOwner, Observer {
+            adapter.update(it)
+        })
 
     }
 }
